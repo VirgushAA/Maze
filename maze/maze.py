@@ -19,13 +19,3 @@ class Maze:
         if y > 0 and self.horizontals[y - 1, x] == 0:
             ns.append((x, y - 1))
         return ns
-
-
-    # if not self.verticals(y-1):
-    #     ns.append((x, y-1))
-    # if not self.verticals(y+1):
-    #     ns.append((x, y+1))
-    # if not self.horizontals(x-1):
-    #     ns.append((x-1, y))
-    # if not self.horizontals(x+1):
-    #     ns.append((x+1, y))

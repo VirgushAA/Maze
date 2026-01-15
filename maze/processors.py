@@ -1,4 +1,4 @@
-from maze import Maze
+from maze.maze import Maze
 from random import random, randint, sample
 
 class MazeBuilder:
@@ -35,12 +35,17 @@ class MazeBuilder:
                     sets[x] = new_set_id
                     new_set_id += 1
 
+        last_y = maze.height - 1
+
         for x in range(maze.width - 1):
             if sets[x] != sets[x + 1]:
-                maze.verticals[y, x] = 0
+                maze.verticals[last_y, x] = 0
+
+                old = sets[x + 1]
+                new = sets[x]
                 for i in range(maze.width):
-                    if sets[i] == sets[x + 1]:
-                        sets[i] = sets[x]
+                    if sets[i] == old:
+                        sets[i] = new
 
 
 class MazeSolver:
@@ -48,8 +53,48 @@ class MazeSolver:
                    algorithm='A*') -> list[tuple[int, int]]:
         solution = []
         if algorithm == 'A*':
-            solution = self.solve_A(maze, start, finish)
+            solution = self.solve_a(maze, start, finish)
         return solution
 
-    def solve_A(self, maze: Maze, start: tuple[int, int], finish: tuple[int, int]) -> list[tuple[int, int]]:
-        pass
+    def solve_a(self, maze: Maze, start: tuple[int, int], finish: tuple[int, int]) -> list[tuple[int, int]]:
+
+        open_set = {start}
+        closed_set = set()
+        g_score = {start: 0}
+        came_from = {start: start}
+
+        while open_set:
+            current = min(open_set, key=lambda x: g_score[x] + abs(x[0] - finish[0]) + abs(x[1] - finish[1]))
+
+            if current == finish:
+                break
+
+            open_set.remove(current)
+            closed_set.add(current)
+
+            for n in maze.neighbors(current[0], current[1]):
+
+                if n in closed_set:
+                    continue
+
+                temp_g = g_score[current] + 1
+                if n not in g_score or temp_g < g_score[n]:
+                    came_from[n] = current
+                    g_score[n] = temp_g
+                    open_set.add(n)
+
+
+        if finish not in came_from:
+            return []
+
+        path = []
+
+        current = finish
+        while current != start:
+            path.append(current)
+            current = came_from[current]
+
+        path.append(start)
+        path.reverse()
+
+        return path

@@ -1,0 +1,14 @@
+body {
+    background-color: #2d3450;
+    /* background: #111; */
+    color: azure;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+canvas {
+    background: #fea;
+}
