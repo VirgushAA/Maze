@@ -1,17 +1,73 @@
+document.getElementById('build-form').addEventListener('submit', async (e) => { e.preventDefault(); });
+document.getElementById('solve-form').addEventListener('submit', async (e) => { e.preventDefault(); });
 
-fetch("/api/maze").then(r => r.json()).then(data => drawMaze(data));
 const canvas = document.getElementById('maze');
 
+let cellSizeX = null;
+let cellSizeY = null;
+let cellSize = null;
+
+let maze = null;
+let path = null;
+
+document.getElementById("button_build").addEventListener('click', async () => {
+    const form = document.getElementById('build-form');
+    const formData = new FormData(form);
+
+    payload = {
+        width: Number(formData.get('width')) || 20,
+        height: Number(formData.get('height')) || 20,
+        algorithm: formData.get('build-algorithm')
+    };
+
+    const response = await fetch('/api/maze/build', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+
+    maze = await response.json();
+    drawMaze(maze);
+});
+
+
+document.getElementById('button_solve').addEventListener('click', async () => {
+    if (!maze) return alert('No maze to solve.');
+
+    const form = document.getElementById('solve-form');
+    const formData = new FormData(form);
+
+    payload = {
+        maze: maze,
+        algorithm: formData.get('solve-algorithm'),
+        start: [0, 0],
+        finish: [maze.width - 1, maze.height - 1],
+    };
+
+    const response = await fetch('/api/maze/solve', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+
+    path = await response.json();
+    drawPath(path);
+});
+
 function drawMaze(data) {
-    const cellSizeX = canvas.width / data.width;
-    const cellSizeY = canvas.height / data.height;
-    const cellSize = Math.min(cellSizeX, cellSizeY);
-    // const cellSize = 10;
-    ctx = document.getElementById('maze').getContext('2d');
+
+    cellSizeX = canvas.width / data.width;
+    cellSizeY = canvas.height / data.height;
+    cellSize = Math.min(cellSizeX, cellSizeY);
+    
+    ctx = canvas.getContext('2d');
+    
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.translate(0.5, 0.5);
 
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'black';
-
     for(let y = 0; y < data.height; y++) {
         for(let x = 0; x < data.width; x++) {
             
@@ -32,21 +88,29 @@ function drawMaze(data) {
             }
         }
     }
-    drawPath(ctx, data.path, cellSize)
 }
 
-function drawPath(ctx, path, size) {
+function drawPath(path) {
+    ctx = canvas.getContext('2d');
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.translate(0.5, 0.5);
+
     ctx.strokeStyle = 'red';
     ctx.lineWidth = 3;
 
     ctx.beginPath();
+    ctx.moveTo(
+        path[0][0] * cellSize + cellSize / 2,
+        path[0][1] * cellSize + cellSize / 2
+    );
     for (let i = 0; i < path.length; i++) {
         const [x, y] = path[i];
 
         ctx.lineTo(
-            x * size + size / 2,
-            y * size + size / 2
+            x * cellSize + cellSize / 2,
+            y * cellSize + cellSize / 2
         );
     }
-    ctx.stroke()
+    ctx.stroke();
 }

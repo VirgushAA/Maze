@@ -50,9 +50,9 @@ class MazeBuilder:
 
 class MazeSolver:
     def solve_maze(self, maze: Maze, start: tuple[int, int], finish: tuple[int, int],
-                   algorithm='A*') -> list[tuple[int, int]]:
+                   algorithm='astar') -> list[tuple[int, int]]:
         solution = []
-        if algorithm == 'A*':
+        if algorithm == 'astar':
             solution = self.solve_a(maze, start, finish)
         return solution
 

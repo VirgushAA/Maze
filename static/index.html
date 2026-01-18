@@ -10,6 +10,25 @@
     </head>
     <body>
         <canvas id="maze" width="600" height="600"></canvas>
+        <div class="control-unit">
+            <form id="build-form">
+                <input type="number" name="width" walue="20" min="2" />
+                <input type="number" name="height" walue="20" min="2" />
+
+                <select name="build-algorithm">
+                    <option value="eller">Eller</option>
+                </select>
+
+                <button id="button_build" type="submit">Build</button>
+            </form>
+            <form id="solve-form">
+                <select name="solve-algorithm">
+                    <option value="astar">A*</option>
+                </select>
+                
+                <button id="button_solve" type="submit">Solve</button>
+            </form>
+        </div>
 
         <script src="maze.js"> </script>
     </body>
